@@ -120,10 +120,26 @@ def editprofile(request):
 
 # Handle updating user profile details
 def updateprofile(request):
-    if request.method == 'POST':
-        pass  # Placeholder for update logic
-    else:
+    username=request.session['username']
+    firstname=request.POST['txtfirstname']
+    lastname=request.POST['txtlastname']
+    address=request.POST['txtaddress']
+    mobile=request.POST['txtmobile']
+    email=request.POST['txtemail']
+    login=UserAccount.objects.get(username=username)
+    try:
+        login.firstname=firstname
+        login.lastname=lastname
+        login.address=address
+        login.mobile=mobile
+        login.email=email
+        login.save()
         return redirect(home)
+    except:
+        errmsg='Update Failed'
+        username=request.session['username']
+        login = UserAccount.objects.get(username=username)
+        return render(request,'editprofile.html', {'login':login,'errmsg':errmsg})
 
 
 # Handle custom logout action
@@ -138,11 +154,26 @@ def changepassword(request):
 
 
 # Handle updating user password
+
 def updatepassword(request):
-    if request.method == 'POST':
-        pass  # Placeholder for update logic
+    password=request.POST['password']
+    newpassword=request.POST['newpassword']
+    confirmpassword=request.POST['confirmpassword']
+    username=request.session['username']
+    login=UserAccount.objects.get(username=username)
+    p=login.password
+    if p==password:
+        if newpassword==confirmpassword:
+            login.password=newpassword
+            login.save()
+            errmsg='Password changed successfully'
+            return render(request,'changepassword.html',{'errmsg':errmsg})
+        else:
+            errmsg='New Password and Confirm Password must be the same'
+            return render(request,'changepassword.html',{'errmsg':errmsg})
     else:
-        return redirect(changepassword)
+        errmsg='Invalid Current Password'
+        return render(request,'changepassword.html',{'errmsg':errmsg})
 
 
 # Views for Admin Functions
